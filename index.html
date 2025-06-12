@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能食物秤 Pro - 交互原型</title>
+    <title>CK863BLE-智能咖啡秤Pro - 交互原型</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
@@ -173,7 +173,7 @@
 <body>
 
     <div class="page-container">
-        <h1>智能食物秤 Pro - 交互原型</h1>
+        <h1>CK863BLE-智能咖啡秤Pro - 交互原型</h1>
         <p class="subtitle">产品中心 - 胡中华</p>
         
         <div style="display: flex; gap: 2rem;">
@@ -185,14 +185,9 @@
                             <a href="main_menu.html" data-lang-zh="主菜单" data-lang-en="Main Menu">主菜单</a>
                             <ul>
                                 <li><a href="general_weighing.html" data-lang-zh="通用称重" data-lang-en="General Weighing">通用称重</a></li>
-                                <li>
-                                    <a href="coffee_scale_menu.html" data-lang-zh="咖啡秤" data-lang-en="Coffee Scale">咖啡秤</a>
-                                    <ul>
-                                        <li><a href="coffee_pour_over.html" data-lang-zh="手冲模式 1" data-lang-en="Pour Over Mode 1">手冲模式 1</a></li>
-                                        <li><a href="coffee_pour_over_2.html" data-lang-zh="手冲模式 2" data-lang-en="Pour Over Mode 2">手冲模式 2</a></li>
-                                        <li><a href="coffee_espresso.html" data-lang-zh="意式模式 1" data-lang-en="Espresso Mode 1">意式模式 1</a></li>
-                                    </ul>
-                                </li>
+                                <li><a href="coffee_pour_over.html" data-lang-zh="手冲模式 1" data-lang-en="Pour Over Mode 1">手冲模式 1</a></li>
+                                <li><a href="coffee_pour_over_2.html" data-lang-zh="手冲模式 2" data-lang-en="Pour Over Mode 2">手冲模式 2</a></li>
+                                <li><a href="coffee_espresso.html" data-lang-zh="意式模式" data-lang-en="Espresso Mode 1">意式模式</a></li>
                                 <li>
                                     <a href="settings_menu.html" data-lang-zh="设置" data-lang-en="Settings">设置</a>
                                     <ul>
@@ -254,7 +249,7 @@
             // Ensure title is Chinese if it was ever changed by lang toggle
             const titleElement = document.querySelector('title');
             if (titleElement) {
-                // Assuming the original title is "智能食物秤 Pro - 交互原型"
+                // Assuming the original title is "CK863BLE-智能咖啡秤Pro - 交互原型"
                 // Or, if there was a data-lang-zh on title, use that.
                 // For simplicity, let's hardcode it if it's static.
                 // If the title tag itself had data-lang-zh, that would be better.
