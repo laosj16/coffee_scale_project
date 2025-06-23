@@ -488,11 +488,14 @@
             let remainingSecondsForPowerOff;
             if (currentLongPressDuration < LONG_PRESS_POWER_OFF_DURATION) {
                 remainingSecondsForPowerOff = Math.ceil((LONG_PRESS_POWER_OFF_DURATION - currentLongPressDuration) / 1000);
-                if (hintBar) { hintBar.innerHTML = `长按<span class="blink-text-inline">${remainingSecondsForPowerOff}s</span>后将关机，现在松开旋钮返回上一级菜单`; }
+                if (hintBar) {
+                    // 确保在长按的任何阶段都显示“长按返回 | 继续按住 X 秒关机”
+                    hintBar.innerHTML = `长按返回 | 继续按住 <span class="blink-text-inline">${remainingSecondsForPowerOff}</span> 秒关机`;
+                }
                 currentLongPressAction = (currentLongPressDuration < LONG_PRESS_RETURN_DURATION) ? LONG_PRESS_ACTION_NONE : LONG_PRESS_ACTION_RETURN;
-            } else { 
+            } else {
                 if (longPressActive) { simulateDirectPowerOff(); }
-                return; 
+                return;
             }
         }
 
@@ -521,7 +524,7 @@
 
             if (currentLongPressAction === LONG_PRESS_ACTION_RETURN) { 
                 console.log("Executing Back Action (松开时触发 <5s)...");
-                window.location.href = 'coffee_scale_menu.html'; 
+                window.location.href = 'main_menu.html'; 
             } else if (currentLongPressAction === LONG_PRESS_ACTION_NONE) { 
                 console.log("Long press cancelled (不足1秒).");
             }
