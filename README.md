@@ -9,18 +9,17 @@
 - **index.html**: 项目的主页，提供了所有功能页面的链接和通用交互逻辑的说明。
 - **main_menu.html**: 主菜单页面，允许用户选择不同的功能模式，默认选中通用称重。
 - **general_weighing.html**: 通用称重页面，用于测量重量并支持单位切换和去皮功能。
-- **coffee_scale_menu.html**: 咖啡秤模式选择页面，提供手冲模式和意式模式的选项。
-- **coffee_pour_over.html**: 手冲模式 1 页面，模拟手冲咖啡的冲泡过程。
-- **coffee_pour_over_2.html**: 手冲模式 2 页面，类似手冲模式 1，但可能有不同的交互或显示。
-- **coffee_espresso.html**: 意式模式 1 页面，模拟意式咖啡的制作过程。
-- **settings_menu.html**: 设置菜单页面，提供设备设置选项。
-- **settings_language.html**: 语言设置页面，允许用户选择设备语言。
-- **settings_factory_reset.html**: 恢复出厂设置页面，用于重置设备设置。
-- **settings_about.html**: 关于设备页面，显示设备信息。
-- **low_battery.html**: 低电量提示页面，模拟设备电量不足时的状态。
-- **charging_status.html**: 充电状态页面，显示设备充电时的状态。
-- **overload_prompt.html**: 超载提示页面，模拟设备超载时的警告。
-- **Power_off.html**: 关机页面，模拟设备关机或返回的操作。
+- **coffee_pour_over.html**: 手冲模式 1 页面，模拟手冲咖啡的冲泡过程，包括计时、重量和流速显示。
+- **coffee_pour_over_2.html**: 手冲模式 2 页面，与手冲模式 1 类似，可能用于不同的冲泡流程或显示布局。
+- **coffee_espresso.html**: 意式模式页面，模拟意式咖啡的制作过程，包括计时、重量和流速显示。
+- **settings_menu.html**: 设置菜单页面，提供亮度调节、声音设置、语言设置、恢复出厂设置和关于设备等选项。
+- **settings_language.html**: 语言设置页面，允许用户通过旋转和短按选择不同的设备语言。
+- **settings_factory_reset.html**: 恢复出厂设置页面，提供恢复出厂设置的确认界面，并模拟恢复过程。
+- **settings_about.html**: 关于设备页面，显示设备的名称、型号、固件版本和版权信息。
+- **low_battery.html**: 低电量提示页面，模拟设备电量不足时的警告和电量耗尽自动关机的场景。
+- **charging_status.html**: 充电状态页面，模拟充电连接和断开的提示，以及电池电量随充电状态的变化。
+- **overload_prompt.html**: 超载提示页面，模拟秤超载时的警告显示和恢复正常称重界面的逻辑。
+- **Power_off.html**: 关机页面，模拟长按旋钮触发返回上一级菜单或直接关机的交互逻辑。
 
 ## 交互逻辑
 
