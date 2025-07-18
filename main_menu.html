@@ -14,14 +14,22 @@
         .device-screen { width: 100%; max-width: 480px; aspect-ratio: 4 / 3; background-color: #1a1a1a; color: #e0e0e0; border-radius: 0.5rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); display: flex; flex-direction: column; overflow: hidden; position: relative; }
         .status-bar { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; background-color: rgba(0, 0, 0, 0.2); flex-shrink: 0; height: 32px; }
         .status-bar i { font-size: 18px; color: #e0e0e0; line-height: 1; }
+        .status-bar .menu-title { font-size: 16px; color: #e0e0e0; font-weight: 500; text-align: center; flex-grow: 1; }
         .main-content { flex-grow: 1; display: flex; align-items: center; overflow: hidden; position: relative; }
         .menu-carousel { display: flex; align-items: center; padding: 0; position: absolute; left: 0; will-change: transform; }
-        .menu-item { flex: 0 0 auto; width: 120px; height: 120px; margin: 0 15px; background-color: #333; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: default; transition: transform 0.3s ease-out, background-color 0.2s ease, border-color 0.2s ease; border: 2px solid transparent; box-shadow: 0 2px 4px rgba(0,0,0,0.2); text-align: center; }
-        .menu-item i { font-size: 40px; color: #e0e0e0; margin-bottom: 8px; transition: color 0.2s ease; line-height: 1; }
-        .menu-item span { font-size: 14px; font-weight: 500; color: #e0e0e0; transition: color 0.2s ease; }
-        .menu-item.selected { transform: scale(1.25); background-color: #007AFF; border-color: #0056b3; z-index: 1; box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
+        .menu-item { flex: 0 0 auto; width: 120px; height: 120px; margin: 0 15px; background-color: #333; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: default; transition: transform 0.3s ease-out, background-color 0.2s ease, border-color 0.2s ease; border: 2px solid transparent; box-shadow: 0 2px 4px rgba(0,0,0,0.2); text-align: center; }
+        .menu-item i { font-size: 40px; color: #ffffff; transition: color 0.2s ease; line-height: 1; }
+        .menu-item span { display: none; }
+        
+        /* 不同菜单项的颜色 */
+        .menu-item[data-target="general_weighing.html"] { background-color: #34C759; } /* 绿色 - 通用称重 */
+        .menu-item[data-target="coffee_espresso.html"] { background-color: #FF9500; } /* 橙色 - 意式模式 */
+        .menu-item[data-target="coffee_pour_over.html"] { background-color: #007AFF; } /* 蓝色 - 手冲模式 1 */
+        .menu-item[data-target="coffee_pour_over_2.html"] { background-color: #5856D6; } /* 紫色 - 手冲模式 2 */
+        .menu-item[data-target="settings_menu.html"] { background-color: #8E8E93; } /* 灰色 - 设置 */
+        
+        .menu-item.selected { transform: scale(1.25); border-color: #ffffff; z-index: 1; box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
         .menu-item.selected i { color: #ffffff; }
-        .menu-item.selected span { color: #ffffff; }
         .hint-bar { text-align: center; padding: 8px 10px 10px 10px; background-color: rgba(0, 0, 0, 0.3); font-size: 15px; color: #b0b0b0; flex-shrink: 0; height: auto; min-height: 32px; }
 
         /* Page Indicator Styles */
@@ -60,24 +68,25 @@
     <div class="device-screen">
         <div class="status-bar">
             <i class="fa-brands fa-bluetooth-b"></i>
+            <div class="menu-title" id="menu-title">手冲模式 1</div>
             <i class="fa-solid fa-battery-full"></i>
         </div>
         <div class="main-content">
             <div class="menu-carousel">
                 <!-- Clones for seamless looping -->
-                <div class="menu-item clone" data-target="coffee_pour_over_2.html"><i class="fa-solid fa-mug-hot"></i><span>手冲模式 2</span></div>
+                <div class="menu-item clone" data-target="coffee_pour_over_2.html"><i class="fa-solid fa-droplet"></i><span>手冲模式 2</span></div>
                 <div class="menu-item clone" data-target="settings_menu.html"><i class="fa-solid fa-gear"></i><span>设置</span></div>
 
                 <!-- Original menu items in desired order -->
                 <div class="menu-item original" data-target="general_weighing.html"><i class="fa-solid fa-weight-scale"></i><span>通用称重</span></div>
-                <div class="menu-item original" data-target="coffee_espresso.html"><i class="fa-solid fa-mug-hot"></i><span>意式模式</span></div>
+                <div class="menu-item original" data-target="coffee_espresso.html"><i class="fa-solid fa-bolt"></i><span>意式模式</span></div>
                 <div class="menu-item original" data-target="coffee_pour_over.html"><i class="fa-solid fa-mug-hot"></i><span>手冲模式 1</span></div>
-                <div class="menu-item original" data-target="coffee_pour_over_2.html"><i class="fa-solid fa-mug-hot"></i><span>手冲模式 2</span></div>
+                <div class="menu-item original" data-target="coffee_pour_over_2.html"><i class="fa-solid fa-droplet"></i><span>手冲模式 2</span></div>
                 <div class="menu-item original" data-target="settings_menu.html"><i class="fa-solid fa-gear"></i><span>设置</span></div>
 
                 <!-- Clones for seamless looping -->
                 <div class="menu-item clone" data-target="general_weighing.html"><i class="fa-solid fa-weight-scale"></i><span>通用称重</span></div>
-                <div class="menu-item clone" data-target="coffee_espresso.html"><i class="fa-solid fa-mug-hot"></i><span>意式模式</span></div>
+                <div class="menu-item clone" data-target="coffee_espresso.html"><i class="fa-solid fa-bolt"></i><span>意式模式</span></div>
             </div>
         </div>
         <div class="page-indicator-container">
@@ -109,6 +118,16 @@
         const originalHintBar = document.querySelector('.hint-bar');
         const hintBar = document.querySelector('.hint-bar');
         const pageIndicatorContainer = document.querySelector('.page-indicator-container');
+        const menuTitle = document.getElementById('menu-title');
+
+        // Menu items titles
+        const menuTitles = [
+            "通用称重",
+            "意式模式", 
+            "手冲模式 1",
+            "手冲模式 2",
+            "设置"
+        ];
 
         // Calculate circumference based on new radius (42)
         const radius = 42;
@@ -159,6 +178,10 @@
             // 更新选中状态
             allItems.forEach(item => item.classList.remove('selected'));
             allItems[currentDisplayIndex].classList.add('selected');
+            
+            // 更新状态栏标题
+            menuTitle.textContent = menuTitles[currentLogicalIndex];
+            
             updatePageIndicator();
         }
 

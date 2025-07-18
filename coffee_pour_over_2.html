@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>手冲模式 2 - CK863BLE-智能咖啡秤Pro</title> <script src="https://cdn.tailwindcss.com"></script>
+    <title>手冲模式 2 - CK863BLE-智能咖啡秤Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -77,13 +77,24 @@
         .blink-text-inline { animation: blink-text-animation 1s infinite; font-weight: bold; }
 
         /* Interaction Controls Styles */
-        .interaction-controls { position: fixed; bottom: 0; left: 0; width: 100%; background-color: rgba(240, 240, 240, 0.95); backdrop-filter: blur(5px); padding: 0.75rem 1rem; border-top: 1px solid #ccc; display: flex; justify-content: center; align-items: center; gap: 0.5rem; z-index: 100; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
+        .interaction-controls { position: fixed; bottom: 0; left: 0; width: 100%; background-color: rgba(240, 240, 240, 0.95); backdrop-filter: blur(5px); padding: 0.75rem 1rem; border-top: 1px solid #ccc; display: flex; justify-content: center; align-items: center; gap: 0.5rem; z-index: 100; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); flex-wrap: wrap; }
         .control-button { padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 500; background-color: #4f46e5; color: white; border: none; border-radius: 0.375rem; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .control-button:hover { background-color: #4338ca; }
         .control-button:active { transform: scale(0.95); }
         .control-button.secondary { background-color: #64748b; }
         .control-button.secondary:hover { background-color: #475569; }
         .control-button:disabled { background-color: #9ca3af; cursor: not-allowed; opacity: 0.7; }
+        
+        /* Weight Input Controls */
+        .weight-controls { display: flex; align-items: center; gap: 0.5rem; background-color: rgba(255, 255, 255, 0.9); padding: 0.5rem; border-radius: 0.375rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .weight-input { width: 80px; padding: 0.25rem 0.5rem; border: 1px solid #ccc; border-radius: 0.25rem; font-size: 0.8rem; text-align: center; }
+        .weight-label { font-size: 0.75rem; color: #666; font-weight: 500; }
+        .control-group { display: flex; align-items: center; gap: 0.25rem; }
+        .pour-rate-input { width: 60px; padding: 0.25rem 0.5rem; border: 1px solid #ccc; border-radius: 0.25rem; font-size: 0.8rem; text-align: center; }
+        .control-button.pouring { background-color: #059669; }
+        .control-button.pouring:hover { background-color: #047857; }
+        .control-button.stop-pouring { background-color: #dc2626; }
+        .control-button.stop-pouring:hover { background-color: #b91c1c; }
     </style>
 </head>
 <body>
@@ -123,8 +134,34 @@
         <button id="btn-short-press" class="control-button" title="模拟短按">确认比例</button>
         <button id="btn-long-press" class="control-button secondary" title="模拟长按旋钮">长按 (返回/关机)</button>
         <button id="btn-return-index" class="control-button secondary" title="返回目录页面">返回目录</button>
-        <button id="btn-simulate-place" class="control-button" style="background-color: #10b981;" disabled>模拟放置</button>
-        <button id="btn-simulate-remove" class="control-button" style="background-color: #f87171;" disabled>模拟拿走</button>
+        
+        <div class="weight-controls">
+            <div class="control-group">
+                <span class="weight-label">放置重量:</span>
+                <input type="number" id="place-weight" class="weight-input" value="100" step="0.1" min="0" max="5000">
+                <span class="weight-label">g</span>
+                <button id="btn-simulate-place" class="control-button" style="background-color: #10b981;">模拟放置</button>
+            </div>
+        </div>
+        
+        <div class="weight-controls" id="pour-controls" style="display: none;">
+            <div class="control-group">
+                <span class="weight-label">注水速度:</span>
+                <input type="number" id="pour-rate" class="pour-rate-input" value="4.0" step="0.1" min="0.1" max="20.0">
+                <span class="weight-label">g/s</span>
+                <button id="btn-start-pour" class="control-button pouring">开始注水</button>
+                <button id="btn-stop-pour" class="control-button stop-pouring" style="display: none;">停止注水</button>
+            </div>
+        </div>
+        
+        <div class="weight-controls">
+            <div class="control-group">
+                <span class="weight-label">移除重量:</span>
+                <input type="number" id="remove-weight" class="weight-input" value="50.0" step="0.1" min="0" max="5000">
+                <span class="weight-label">g</span>
+                <button id="btn-simulate-remove" class="control-button" style="background-color: #f87171;">模拟移除</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -137,7 +174,8 @@
             hintBar, tareIndicator,
             totalWaterInfoItem, timeInfoItem, flowRateInfoItem, groundsWeightInfoItem,
             btnRotateLeft, btnRotateRight, btnShortPress, btnLongPress,
-            btnReturnIndex, btnSimulatePlace, btnSimulateRemove;
+            btnReturnIndex, btnSimulatePlace, btnSimulateRemove,
+            placeWeightInput, removeWeightInput, btnStartPour, btnStopPour, pourRateInput, pourControls;
             // btnToggleLanguage removed
         
         // --- State Variables ---
@@ -161,6 +199,7 @@
         let totalWaterWeight = 0.0; let coffeeLiquidWeight = 0.0; let removedWeight = 0.0;
         let timerInterval = null; let timerSeconds = 0; let pouringInterval = null;
         let lastWaterAddTime = 0; let lastWaterWeight = 0; let currentFlowRateGramsPerSecond = 0.0;
+        let continuousPourInterval = null; let isManualPouring = false;
         let calculatedTargetWaterWeight = 0.0;
 
         // New long press state variables
@@ -189,10 +228,40 @@
         function formatWeight(weightValue) { const currentUnit = units[currentUnitIndex]; let valueInGrams = weightValue; let displayUnit = 'g'; let valueToDisplay = valueInGrams; if (currentUnit === 'ml') { valueToDisplay = valueInGrams / G_PER_ML; displayUnit = 'ml'; } else if (currentUnit === 'oz') { valueToDisplay = valueInGrams / G_PER_OZ; displayUnit = 'oz'; } else if (currentUnit === 'fl:oz') { valueToDisplay = valueInGrams / ML_PER_FL_OZ; displayUnit = 'fl:oz'; } else if (currentUnit === 'lb') { valueToDisplay = valueInGrams / G_PER_LB; displayUnit = 'lb'; } const decimalPlaces = getDecimalPlaces(valueToDisplay, currentUnit); let displayWeight; if (Math.abs(valueToDisplay) < 0.3 && (currentUnit === 'g' || currentUnit === 'ml')) { displayWeight = '0.0'; } else { displayWeight = valueToDisplay.toFixed(decimalPlaces); } return { value: displayWeight, unit: displayUnit }; }
         function formatFlowRate(rateGramsPerSecond) { const currentUnit = units[currentUnitIndex]; let displayRate; let displayUnitSuffix = '/s'; if (currentUnit === 'ml') { displayRate = (rateGramsPerSecond / G_PER_ML).toFixed(1); displayUnitSuffix = 'ml/s'; } else if (currentUnit === 'oz' || currentUnit === 'fl:oz') { displayRate = (rateGramsPerSecond / G_PER_OZ).toFixed(1); displayUnitSuffix = 'oz/s'; } else if (currentUnit === 'lb') { displayRate = (rateGramsPerSecond / G_PER_LB).toFixed(2); displayUnitSuffix = 'lb/s'; } else { displayRate = rateGramsPerSecond.toFixed(1); displayUnitSuffix = 'g/s'; } if (Math.abs(parseFloat(displayRate)) < 0.01) { displayRate = (0.0).toFixed(displayRate.includes('.') ? displayRate.split('.')[1].length : 1); } return { value: displayRate, unit: displayUnitSuffix }; }
         function showTareIndicator() { if (!tareIndicator) return; tareIndicator.classList.add('visible'); if (tareTimeout) { clearTimeout(tareTimeout); } tareTimeout = setTimeout(() => { tareIndicator.classList.remove('visible'); tareTimeout = null; }, 1000); }
-        function calculateFlowRate(addedWaterGrams) { const now = Date.now(); const timeDiff = (now - lastWaterAddTime) / 1000; if (timeDiff > 0.1) { currentFlowRateGramsPerSecond = addedWaterGrams / timeDiff; lastWaterAddTime = now; lastWaterWeight = totalWaterWeight; } else if (addedWaterGrams === 0 && timeDiff > 0.5) { currentFlowRateGramsPerSecond = 0.0; } if (secondaryDisplay && !secondaryDisplay.classList.contains('hidden') && flowRateValue && flowRateUnit) { flowRateValue.textContent = formatFlowRate(currentFlowRateGramsPerSecond).value; flowRateUnit.textContent = formatFlowRate(currentFlowRateGramsPerSecond).unit; } }
+        function calculateFlowRate(addedWaterGrams) { 
+            const now = Date.now(); 
+            const timeDiff = (now - lastWaterAddTime) / 1000; 
+            
+            if (isManualPouring && pourRateInput) {
+                // 手动注水时使用设定的注水速度
+                currentFlowRateGramsPerSecond = parseFloat(pourRateInput.value) || 4.0;
+            } else if (timeDiff > 0.1) { 
+                currentFlowRateGramsPerSecond = addedWaterGrams / timeDiff; 
+                lastWaterAddTime = now; 
+                lastWaterWeight = totalWaterWeight; 
+            } else if (addedWaterGrams === 0 && timeDiff > 0.5) { 
+                currentFlowRateGramsPerSecond = 0.0; 
+            } 
+            
+            if (secondaryDisplay && !secondaryDisplay.classList.contains('hidden') && flowRateValue && flowRateUnit) { 
+                const flowRateFormatted = formatFlowRate(currentFlowRateGramsPerSecond);
+                flowRateValue.textContent = flowRateFormatted.value; 
+                flowRateUnit.textContent = flowRateFormatted.unit; 
+            } 
+        }
 
         function updateUI() {
             if (!mainContent || !statusPrompt || !ratioSettingDisplay || !primaryDisplayContainer || !hintBar) { console.error("DOM elements not ready for updateUI"); return; }
+            
+            // 根据状态显示或隐藏注水控制面板
+            if (pourControls) {
+                if (currentState === State.READY_TO_POUR || currentState === State.POURING) {
+                    pourControls.style.display = 'flex';
+                } else {
+                    pourControls.style.display = 'none';
+                }
+            }
+            
             const currentUnit = units[currentUnitIndex]; 
             let promptText = ''; 
             let hintTextVal = ''; 
@@ -343,10 +412,63 @@
 
             btnShortPress.textContent = `${shortPressAction === '---' ? '---' : shortPressAction} (短按)`; btnShortPress.disabled = !shortPressEnabled;
             btnRotateLeft.disabled = !enableRotation; btnRotateRight.disabled = !enableRotation;
-            btnSimulatePlace.disabled = currentState === State.SETTING_RATIO || currentState === State.FINISHED || currentState === State.WEIGHING_LIQUID;
-            btnSimulateRemove.disabled = currentState !== State.FINISHED;
+            if (btnSimulatePlace) btnSimulatePlace.disabled = currentState === State.SETTING_RATIO;
+            if (btnSimulateRemove) btnSimulateRemove.disabled = currentState !== State.FINISHED && currentState !== State.WEIGHING_LIQUID;
         }
-        function setState(newState) { console.log(`State transition: ${currentState} -> ${newState}`); currentState = newState; if (mainContent) { updateUI(); } else { console.warn("setState called before DOM ready."); } }
+        
+        function updateDefaultWeights() {
+            if (!placeWeightInput || !removeWeightInput) return;
+            
+            // 根据当前状态设置智能默认重量
+            switch (currentState) {
+                case State.SETTING_RATIO:
+                    placeWeightInput.value = "100"; // 咖啡壶重量
+                    removeWeightInput.value = "50.0";
+                    break;
+                case State.WAITING_CARAFE:
+                    placeWeightInput.value = "100"; // 咖啡壶重量
+                    removeWeightInput.value = "50.0";
+                    break;
+                case State.WAITING_GEAR_TARE:
+                    placeWeightInput.value = "50"; // 滤杯+滤纸重量
+                    removeWeightInput.value = "30.0";
+                    break;
+                case State.WAITING_GROUNDS:
+                    placeWeightInput.value = "10"; // 咖啡粉重量
+                    removeWeightInput.value = "5.0";
+                    break;
+                case State.WEIGHING_GROUNDS:
+                    placeWeightInput.value = "10"; // 咖啡粉重量
+                    removeWeightInput.value = "5.0";
+                    break;
+                case State.READY_TO_POUR:
+                    placeWeightInput.value = "10"; // 初始注水重量
+                    removeWeightInput.value = "5.0";
+                    break;
+                case State.POURING:
+                    placeWeightInput.value = "5"; // 继续注水重量
+                    removeWeightInput.value = "3.0";
+                    break;
+                case State.FINISHED:
+                    placeWeightInput.value = "5.0";
+                    removeWeightInput.value = "70"; // 移除滤杯重量
+                    break;
+                case State.WEIGHING_LIQUID:
+                    placeWeightInput.value = "5.0";
+                    removeWeightInput.value = "50.0";
+                    break;
+                default:
+                    placeWeightInput.value = "10.0";
+                    removeWeightInput.value = "10.0";
+                    break;
+            }
+        }
+        function setState(newState) { 
+            console.log(`State transition: ${currentState} -> ${newState}`); 
+            currentState = newState; 
+            updateDefaultWeights(); // 更新默认重量值
+            if (mainContent) { updateUI(); } else { console.warn("setState called before DOM ready."); } 
+        }
         function simulatePlacement(weight) { 
             if (longPressActive) return; 
             console.log(`Simulating placement: ${weight}g`); 
@@ -415,7 +537,89 @@
             console.log("pouringInterval set:", pouringInterval);
         }
         function stopPourSimulation() { if (pouringInterval) { console.log("Stopping pour simulation."); clearInterval(pouringInterval); pouringInterval = null; calculateFlowRate(0); updateUI(); } }
-        function simulateRemoval() { if (longPressActive) return; console.log("Simulating removal"); if (currentState === State.FINISHED || currentState === State.WEIGHING_LIQUID) { stopPourSimulation(); stopTimer(); const grounds = measuredGroundsWeight > 0.1 ? measuredGroundsWeight : coffeeGroundsWeight; const retainedWater = grounds * 2; coffeeLiquidWeight = Math.max(0, totalWaterWeight - retainedWater); removedWeight = gearWeight + grounds + retainedWater; console.log(`Filter removed. Liquid: ${coffeeLiquidWeight.toFixed(1)}g, Retained: ${retainedWater.toFixed(1)}g, Removed: ${removedWeight.toFixed(1)}g`); setState(State.WEIGHING_LIQUID); } else { console.warn(`Cannot simulate removal in state: ${currentState}`); } }
+        
+        function startContinuousPour() {
+            if (continuousPourInterval || currentState !== State.READY_TO_POUR && currentState !== State.POURING) return;
+            
+            const pourRate = parseFloat(pourRateInput.value) || 4.0;
+            isManualPouring = true;
+            
+            if (currentState === State.READY_TO_POUR) {
+                startTimer();
+                setState(State.POURING);
+            }
+            
+            lastWaterAddTime = Date.now();
+            
+            if (btnStartPour) btnStartPour.style.display = 'none';
+            if (btnStopPour) btnStopPour.style.display = 'inline-block';
+            
+            continuousPourInterval = setInterval(() => {
+                const waterToAdd = pourRate * 0.1; // 每100ms添加的水量
+                totalWaterWeight += waterToAdd;
+                currentWeight = totalWaterWeight;
+                calculateFlowRate(waterToAdd);
+                
+                const grounds = measuredGroundsWeight > 0.1 ? measuredGroundsWeight : coffeeGroundsWeight;
+                calculatedTargetWaterWeight = grounds * targetRatio;
+                
+                if (totalWaterWeight >= calculatedTargetWaterWeight) {
+                    totalWaterWeight = calculatedTargetWaterWeight;
+                    currentWeight = totalWaterWeight;
+                    stopContinuousPour();
+                    console.log("Target water weight reached.");
+                }
+                
+                updateUI();
+            }, 100); // 更频繁的更新，模拟更平滑的注水
+            
+            console.log(`Started continuous pouring at ${pourRate}g/s`);
+        }
+        
+        function stopContinuousPour() {
+            if (continuousPourInterval) {
+                clearInterval(continuousPourInterval);
+                continuousPourInterval = null;
+            }
+            
+            isManualPouring = false;
+            currentFlowRateGramsPerSecond = 0.0;
+            
+            if (btnStartPour) btnStartPour.style.display = 'inline-block';
+            if (btnStopPour) btnStopPour.style.display = 'none';
+            
+            updateUI();
+            console.log("Stopped continuous pouring");
+        }
+        function simulateRemoval() { 
+            if (longPressActive) return; 
+            console.log("Simulating removal"); 
+            
+            const customRemoveWeight = parseFloat(removeWeightInput.value) || 50.0;
+            
+            if (currentState === State.FINISHED || currentState === State.WEIGHING_LIQUID) { 
+                stopPourSimulation(); 
+                stopContinuousPour(); // 停止连续注水
+                stopTimer(); 
+                const grounds = measuredGroundsWeight > 0.1 ? measuredGroundsWeight : coffeeGroundsWeight; 
+                const retainedWater = grounds * 2; 
+                coffeeLiquidWeight = Math.max(0, totalWaterWeight - retainedWater); 
+                removedWeight = customRemoveWeight; // 使用自定义移除重量
+                console.log(`Filter removed. Liquid: ${coffeeLiquidWeight.toFixed(1)}g, Retained: ${retainedWater.toFixed(1)}g, Removed: ${removedWeight.toFixed(1)}g`); 
+                setState(State.WEIGHING_LIQUID); 
+            } else if (currentState === State.POURING || currentState === State.READY_TO_POUR) {
+                // 在注水状态下可以移除部分重量（比如移走一些水）
+                currentWeight = Math.max(0, currentWeight - customRemoveWeight);
+                totalWaterWeight = Math.max(0, totalWaterWeight - customRemoveWeight);
+                console.log(`Removed ${customRemoveWeight}g during pouring. Current weight: ${currentWeight.toFixed(1)}g`);
+                updateUI();
+            } else { 
+                // 在其他状态下也可以移除重量
+                currentWeight = Math.max(0, currentWeight - customRemoveWeight);
+                console.log(`Removed ${customRemoveWeight}g. Current weight: ${currentWeight.toFixed(1)}g`);
+                updateUI();
+            } 
+        }
         
         function handleShortPress() { 
             if (longPressActive) return; 
@@ -445,7 +649,7 @@
 
         // --- New Long Press Logic ---
         function simulateDirectPowerOff() { console.log("Simulating Direct Power Off - Black Screen"); disableAllButtons(); const deviceScreen = document.querySelector('.device-screen'); if (deviceScreen) { deviceScreen.innerHTML = ''; deviceScreen.style.backgroundColor = '#000000'; } if (longPressActive && longPressTimer) { cancelAnimationFrame(longPressTimer); longPressTimer = null; longPressActive = false; } }
-        function disableAllButtons() { [btnRotateLeft, btnRotateRight, btnShortPress, btnLongPress, btnReturnIndex, btnSimulatePlace, btnSimulateRemove].forEach(btn => { if(btn) btn.disabled = true; }); } // Removed btnToggleLanguage
+        function disableAllButtons() { [btnRotateLeft, btnRotateRight, btnShortPress, btnLongPress, btnReturnIndex, btnSimulatePlace, btnSimulateRemove, btnStartPour, btnStopPour, placeWeightInput, removeWeightInput, pourRateInput].forEach(btn => { if(btn) btn.disabled = true; }); } // Removed btnToggleLanguage
         function startLongPress() { if (longPressActive) return; longPressActive = true; longPressStartTime = Date.now(); currentLongPressDuration = 0; currentLongPressAction = LONG_PRESS_ACTION_NONE; if (hintBar) { hintBar.classList.add('long-press-active'); } updateLongPressHintText(); longPressTimer = requestAnimationFrame(updateLongPressHintLoop); }
         function updateLongPressHintLoop() { if (!longPressActive) return; updateLongPressHintText(); longPressTimer = requestAnimationFrame(updateLongPressHintLoop); }
         function updateLongPressHintText() { currentLongPressDuration = Date.now() - longPressStartTime; let remainingSecondsForPowerOff; if (currentLongPressDuration < LONG_PRESS_POWER_OFF_DURATION) { remainingSecondsForPowerOff = Math.ceil((LONG_PRESS_POWER_OFF_DURATION - currentLongPressDuration) / 1000); if (hintBar) { hintBar.innerHTML = `长按返回  | 继续按住<span class="blink-text-inline">${remainingSecondsForPowerOff}s</span>关机`; } currentLongPressAction = (currentLongPressDuration < LONG_PRESS_RETURN_DURATION) ? LONG_PRESS_ACTION_NONE : LONG_PRESS_ACTION_RETURN; } else { if (longPressActive) { simulateDirectPowerOff(); } return; } }
@@ -499,6 +703,12 @@
             btnReturnIndex = document.getElementById('btn-return-index');
             btnSimulatePlace = document.getElementById('btn-simulate-place');
             btnSimulateRemove = document.getElementById('btn-simulate-remove');
+            placeWeightInput = document.getElementById('place-weight');
+            removeWeightInput = document.getElementById('remove-weight');
+            btnStartPour = document.getElementById('btn-start-pour');
+            btnStopPour = document.getElementById('btn-stop-pour');
+            pourRateInput = document.getElementById('pour-rate');
+            pourControls = document.getElementById('pour-controls');
             // btnToggleLanguage removed
 
             btnRotateLeft.addEventListener('click', () => handleRotate(-1));
@@ -511,19 +721,56 @@
             
             btnSimulatePlace.addEventListener('click', () => {
                 if (longPressActive) return; 
-                let weightToAdd = 0;
-                if (currentState === State.WAITING_CARAFE) weightToAdd = 170.2;
-                else if (currentState === State.WAITING_GEAR_TARE) weightToAdd = 303.3; 
-                else if (currentState === State.WAITING_GROUNDS) weightToAdd = 15.7; 
-                else if (currentState === State.READY_TO_POUR) weightToAdd = 0.5; 
-                else if (currentState === State.POURING) { startPourSimulation(true); return; }
-                else return;
-                simulatePlacement(weightToAdd);
+                
+                const customWeight = parseFloat(placeWeightInput.value) || 0;
+                if (customWeight <= 0) {
+                    alert('请输入有效的重量值 (大于0)');
+                    return;
+                }
+                
+                let weightToAdd = customWeight;
+                
+                switch (currentState) {
+                    case State.SETTING_RATIO:
+                        // 设置比例状态下不允许放置重量
+                        return;
+                    case State.WAITING_CARAFE:
+                        // 初始状态：放置咖啡壶
+                        console.log(`Placing carafe: ${weightToAdd}g`);
+                        break;
+                    case State.WAITING_GEAR_TARE:
+                        // 等待滤杯：使用自定义重量或默认滤杯重量
+                        console.log(`Placing filter and paper: ${weightToAdd}g`);
+                        break;
+                    case State.WAITING_GROUNDS:
+                        // 等待咖啡粉：使用自定义重量
+                        console.log(`Adding coffee grounds: ${weightToAdd}g`);
+                        break;
+                    case State.WEIGHING_GROUNDS:
+                        // 称量咖啡粉状态：继续添加咖啡粉
+                        console.log(`Adding more coffee grounds: ${weightToAdd}g`);
+                        break;
+                    case State.READY_TO_POUR:
+                    case State.POURING:
+                        // 注水状态：提醒用户使用连续注水功能
+                        alert('在注水状态下，请使用"开始注水"按钮来模拟连续注水过程');
+                        return;
+                    default:
+                        console.log(`Adding weight: ${weightToAdd}g`);
+                        break;
+                }
+                
+                if (weightToAdd > 0) { 
+                    simulatePlacement(weightToAdd); 
+                }
             });
             btnSimulateRemove.addEventListener('click', () => {
                 if (longPressActive) return; 
                 simulateRemoval();
             });
+            
+            if (btnStartPour) btnStartPour.addEventListener('click', startContinuousPour);
+            if (btnStopPour) btnStopPour.addEventListener('click', stopContinuousPour);
 
             // btnToggleLanguage event listener removed
 
