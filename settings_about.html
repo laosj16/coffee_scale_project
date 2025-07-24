@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>关于设备 - CK863BLE-智能咖啡秤Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">{
     <style>
         body { font-family: 'Inter', sans-serif; overflow: hidden; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding-bottom: 80px; }
         .device-screen { width: 100%; max-width: 480px; aspect-ratio: 4 / 3; background-color: #1a1a1a; color: #e0e0e0; border-radius: 0.5rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); display: flex; flex-direction: column; overflow: hidden; position: relative; }
         .status-bar { display: flex; justify-content: space-between; align-items: center; padding: 8px 15px; background-color: rgba(0, 0, 0, 0.2); flex-shrink: 0; height: 36px; position: relative; }
         .status-bar i { font-size: 18px; color: #e0e0e0; line-height: 1; }
         #status-prompt { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 15px; color: #a0a0a0; white-space: nowrap; max-width: calc(100% - 80px); overflow: hidden; text-overflow: ellipsis; }
+        .device-name { text-align: center; padding: 20px 30px; font-size: 20px; font-weight: 600; color: #ffffff; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
         .main-content { flex-grow: 1; padding: 25px 30px; display: flex; flex-direction: column; justify-content: center; width: 100%; box-sizing: border-box; }
         .about-list { list-style: none; padding: 0; margin: 0; }
         .about-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
@@ -44,12 +44,10 @@
             <i class="fa-solid fa-battery-full"></i>
         </div>
 
+        <div class="device-name">多功能智能秤Pro</div>
+
         <div class="main-content">
             <ul class="about-list">
-                <li class="about-item">
-                    <span class="label">设备名称</span>
-                    <span class="value">多功能智能秤Pro</span>
-                </li>
                 <li class="about-item">
                     <span class="label">型号</span>
                     <span class="value">CK863BLE</span>
@@ -57,10 +55,6 @@
                 <li class="about-item">
                     <span class="label">固件版本</span>
                     <span class="value">FW-0.9.9</span>
-                </li>
-                <li class="about-item">
-                    <span class="label">版权</span>
-                    <span class="value">© 2025 Shenzhen Unique Scales Co., Ltd.</span>
                 </li>
             </ul>
         </div>
