@@ -15,12 +15,12 @@
         .status-bar i { font-size: 18px; color: #e0e0e0; line-height: 1; }
         #status-prompt { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 15px; color: #a0a0a0; white-space: nowrap; max-width: calc(100% - 80px); overflow: hidden; text-overflow: ellipsis; }
         .device-name { text-align: center; padding: 20px 30px; font-size: 20px; font-weight: 600; color: #ffffff; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .main-content { flex-grow: 1; padding: 25px 30px; display: flex; flex-direction: column; justify-content: center; width: 100%; box-sizing: border-box; }
+        .main-content { flex-grow: 1; padding: 25px 30px; display: flex; flex-direction: column; justify-content: flex-start; width: 100%; box-sizing: border-box; padding-top: 30px; }
         .about-list { list-style: none; padding: 0; margin: 0; }
-        .about-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .about-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 15px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
         .about-item:last-child { border-bottom: none; }
-        .about-item .label { font-size: 16px; color: #a0a0a0; }
-        .about-item .value { font-size: 16px; color: #e0e0e0; font-weight: 500; text-align: right; }
+        .about-item .label { font-size: 20px; color: #a0a0a0; font-weight: 500; }
+        .about-item .value { font-size: 20px; color: #e0e0e0; font-weight: 600; text-align: right; }
         .hint-bar { text-align: center; padding: 8px 10px 12px 10px; background-color: rgba(0, 0, 0, 0.3); font-size: 15px; color: #b0b0b0; height: 36px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: absolute; bottom: 0; left: 0; width: 100%; z-index: 5; }
         
         /* Minimal overlay for long press visual feedback if needed, or can be omitted if no progress shown */
@@ -60,7 +60,7 @@
         </div>
 
         <div id="hint-bar" class="hint-bar">
-            长按旋钮返回
+            长按返回
         </div>
         
         <div id="long-press-feedback-overlay" class="overlay">返回中...</div>
@@ -121,7 +121,7 @@
 
             // Initial Setup
             if(statusPrompt) statusPrompt.textContent = "关于设备";
-            if(hintBar) hintBar.textContent = "长按旋钮返回";
+            if(hintBar) hintBar.textContent = "长按返回";
         });
     </script>
 
