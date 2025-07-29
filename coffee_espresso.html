@@ -525,8 +525,8 @@
             disableAllButtons();
             const deviceScreen = document.querySelector('.device-screen');
             if (deviceScreen) {
-                deviceScreen.innerHTML = '';
-                deviceScreen.style.backgroundColor = '#000000';
+                deviceScreen.innerHTML = ''; // Remove all content
+                deviceScreen.style.backgroundColor = '#000000'; // Set background to black
             }
             if (longPressActive && longPressTimer) {
                 cancelAnimationFrame(longPressTimer);
