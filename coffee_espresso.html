@@ -355,14 +355,60 @@
              if (timerInterval || flowRateInterval) return; console.log("Starting Extraction Timer & Flow Rate Calc"); timerSeconds = 0; timerValue.textContent = formatTime(timerSeconds); lastWeightReading = currentWeight; lastWeightTime = Date.now(); currentFlowRateGramsPerSecond = 0.0; noFlowCounter = 0; timerInterval = setInterval(() => { timerSeconds++; if (timerSeconds >= 600) { stopExtraction(); timerSeconds = 599; } timerValue.textContent = formatTime(timerSeconds); }, 1000); flowRateInterval = setInterval(calculateFlowRate, FLOW_RATE_INTERVAL_MS);
         }
 
-        // Stop timer and flow rate calculation
+        // Stop timer and flow rate calculation, and lock the final values
         function stopExtraction() {
-             if (!timerInterval && !flowRateInterval) return; console.log("Stopping Extraction Timer & Flow Rate Calc"); if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } if (flowRateInterval) { clearInterval(flowRateInterval); flowRateInterval = null; } currentFlowRateGramsPerSecond = 0.0; lockedWeight = liquidWeight; lockedTime = timerSeconds; setState(State.FINISHED);
+            if (!timerInterval && !flowRateInterval) return;
+            console.log("Stopping Extraction Timer & Flow Rate Calc");
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            if (flowRateInterval) {
+                clearInterval(flowRateInterval);
+                flowRateInterval = null;
+            }
+            currentFlowRateGramsPerSecond = 0.0;
+
+            // Requirement 1: Lock weight and time when extraction ends.
+            lockedWeight = liquidWeight;
+            lockedTime = timerSeconds;
+
+            setState(State.FINISHED);
         }
 
         // Calculate flow rate based on weight change
         function calculateFlowRate() {
-             const now = Date.now(); const timeDiff = (now - lastWeightTime) / 1000; if (timeDiff >= (FLOW_RATE_INTERVAL_MS / 1000)) { const weightDiff = currentWeight - lastWeightReading; currentFlowRateGramsPerSecond = (timeDiff > 0) ? (weightDiff / timeDiff) : 0; lastWeightReading = currentWeight; lastWeightTime = now; const formattedFlow = formatFlowRate(currentFlowRateGramsPerSecond); flowRateValue.textContent = formattedFlow.value; flowRateUnit.textContent = formattedFlow.unit; if (currentFlowRateGramsPerSecond < FLOW_STOP_THRESHOLD_G_PER_S) { noFlowCounter++; if (noFlowCounter >= NO_FLOW_CHECKS_TO_STOP) { console.log("Flow stop detected."); stopExtraction(); } } else { noFlowCounter = 0; } }
+            const now = Date.now();
+            const timeDiff = (now - lastWeightTime) / 1000;
+            if (timeDiff >= (FLOW_RATE_INTERVAL_MS / 1000)) {
+                const weightDiff = currentWeight - lastWeightReading;
+
+                // Requirement 3: Check for sudden cup removal during extraction
+                if (weightDiff < -5.0) { // Using a threshold of -5g to detect removal
+                    console.log("Cup removed during extraction. Auto-resetting.");
+                    resetScale();
+                    return; // Exit function to prevent further processing
+                }
+
+                currentFlowRateGramsPerSecond = (timeDiff > 0) ? (weightDiff / timeDiff) : 0;
+                lastWeightReading = currentWeight;
+                lastWeightTime = now;
+                const formattedFlow = formatFlowRate(currentFlowRateGramsPerSecond);
+                flowRateValue.textContent = formattedFlow.value;
+                flowRateUnit.textContent = formattedFlow.unit;
+
+                // Check if flow has stopped
+                if (currentFlowRateGramsPerSecond < FLOW_STOP_THRESHOLD_G_PER_S) {
+                    noFlowCounter++;
+                    if (noFlowCounter >= NO_FLOW_CHECKS_TO_STOP) {
+                        console.log("Flow stop detected.");
+                        stopExtraction();
+                    }
+                } else {
+                    noFlowCounter = 0;
+                }
+            }
         }
 
         function resetScale() {
@@ -446,7 +492,7 @@
             btnSimulatePlaceCup.disabled = currentState !== State.WAITING_CUP;
             btnSimulateDripStart.disabled = currentState !== State.CUP_PLACED_TARED;
             btnSimulateDripStop.disabled = currentState !== State.EXTRACTING;
-            btnSimulateRemoveCup.disabled = currentState !== State.FINISHED;
+            btnSimulateRemoveCup.disabled = currentState !== State.FINISHED && currentState !== State.EXTRACTING;
         }
 
         function setState(newState) {
@@ -506,8 +552,16 @@
              if (currentState === State.EXTRACTING) { console.log("Simulating drip stop."); stopExtraction(); }
         }
 
-        function simulateRemoval() { /* ... (same) ... */
-             if (currentState === State.FINISHED) { console.log("Simulating cup removal (display remains locked)."); } else { console.warn(`Cannot simulate removal in state: ${currentState}`); }
+        function simulateRemoval() {
+            // Requirements 2 & 3: Auto-reset when cup is removed.
+            if (currentState === State.FINISHED || currentState === State.EXTRACTING) {
+                console.log(`Simulating cup removal during ${currentState}. Auto-resetting.`);
+                currentWeight = 0;
+                liquidWeight = 0;
+                resetScale(); // This stops timers and resets all state variables
+            } else {
+                console.warn(`Cannot simulate removal in state: ${currentState}`);
+            }
         }
 
         // --- Button Handlers ---
