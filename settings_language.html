@@ -77,12 +77,12 @@
             flex-shrink: 0;
         }
         .blink-text-inline {
-            animation: blink-animation 1s steps(1, start) infinite;
+            animation: blink-text-animation 1s infinite;
+            font-weight: bold;
         }
-        @keyframes blink-animation {
-            to {
-                visibility: hidden;
-            }
+        @keyframes blink-text-animation {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
 
         /* Interaction Controls Styles */
@@ -165,11 +165,6 @@
             window.location.href = 'settings_menu.html';
         }
 
-        document.getElementById('btn-rotate-left').addEventListener('click', () => rotate('counterclockwise'));
-        document.getElementById('btn-rotate-right').addEventListener('click', () => rotate('clockwise'));
-        document.getElementById('btn-short-press').addEventListener('click', confirmSelection);
-        document.getElementById('btn-return-index').addEventListener('click', () => { window.location.href = 'index.html'; });
-
         // --- Long Press State ---
         let longPressTimer = null;
         let longPressStartTime = 0;
@@ -209,6 +204,10 @@
 
         function startLongPress() {
             if (longPressActive) return;
+            document.getElementById('btn-rotate-left').disabled = true;
+            document.getElementById('btn-rotate-right').disabled = true;
+            document.getElementById('btn-short-press').disabled = true;
+            document.getElementById('btn-return-index').disabled = true;
             longPressActive = true;
             longPressStartTime = Date.now();
             currentLongPressDuration = 0;
@@ -246,6 +245,10 @@
 
         function cancelLongPress() {
             if (!longPressActive) return;
+            document.getElementById('btn-rotate-left').disabled = false;
+            document.getElementById('btn-rotate-right').disabled = false;
+            document.getElementById('btn-short-press').disabled = false;
+            document.getElementById('btn-return-index').disabled = false;
             longPressActive = false;
             if (longPressTimer) {
                 cancelAnimationFrame(longPressTimer);
