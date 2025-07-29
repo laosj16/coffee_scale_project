@@ -76,6 +76,14 @@
             background: rgba(0, 0, 0, 0.3);
             flex-shrink: 0;
         }
+        .blink-text-inline {
+            animation: blink-animation 1s steps(1, start) infinite;
+        }
+        @keyframes blink-animation {
+            to {
+                visibility: hidden;
+            }
+        }
 
         /* Interaction Controls Styles */
         .interaction-controls { position: fixed; bottom: 0; left: 0; width: 100%; background-color: rgba(240, 240, 240, 0.95); backdrop-filter: blur(5px); padding: 0.75rem 1rem; border-top: 1px solid #ccc; display: flex; justify-content: center; align-items: center; gap: 0.5rem; z-index: 100; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
