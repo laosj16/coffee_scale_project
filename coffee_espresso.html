@@ -241,14 +241,21 @@
             'lb': 'unit-lb' 
         };
         let currentUnitIndex = 0; let tareTimeout = null;
-        let longPressTimer = null; let longPressStartTime = 0; let currentLongPressDuration = 0;
+        let longPressTimer = null;
+        let longPressStartTime = 0;
+        let currentLongPressDuration = 0;
         let longPressActive = false;
-        const SHOW_OVERLAY_DURATION = 1000; const POWER_CONFIRM_DURATION = 5000;
+        const LONG_PRESS_RETURN_DURATION = 1000; // 1 second to trigger return
+        const LONG_PRESS_POWER_OFF_DURATION = 5000; // 5 seconds to trigger power off
+        const LONG_PRESS_ACTION_NONE = 0;
+        const LONG_PRESS_ACTION_RETURN = 1;
+        let currentLongPressAction = LONG_PRESS_ACTION_NONE;
+
         const G_PER_ML = 1.0; const G_PER_OZ = 28.3495; const G_PER_LB = 453.592;
 
         // --- Functions ---
 
-        function formatTime(seconds) { /* ... (same) ... */
+        function formatTime(seconds) {
              const mins = Math.floor(seconds / 60); const secs = seconds % 60; return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
         function getDecimalPlaces(weight, unit) {
@@ -339,26 +346,26 @@
 
             return { value: displayRate, unit: displayUnitSuffix };
         }
-        function showTareIndicator() { /* ... (same) ... */
+        function showTareIndicator() {
               tareIndicator.classList.add('visible'); if (tareTimeout) { clearTimeout(tareTimeout); } tareTimeout = setTimeout(() => { tareIndicator.classList.remove('visible'); tareTimeout = null; }, 1000);
         }
 
         // Start timer and flow rate calculation
-        function startExtraction() { /* ... (same) ... */
+        function startExtraction() {
              if (timerInterval || flowRateInterval) return; console.log("Starting Extraction Timer & Flow Rate Calc"); timerSeconds = 0; timerValue.textContent = formatTime(timerSeconds); lastWeightReading = currentWeight; lastWeightTime = Date.now(); currentFlowRateGramsPerSecond = 0.0; noFlowCounter = 0; timerInterval = setInterval(() => { timerSeconds++; if (timerSeconds >= 600) { stopExtraction(); timerSeconds = 599; } timerValue.textContent = formatTime(timerSeconds); }, 1000); flowRateInterval = setInterval(calculateFlowRate, FLOW_RATE_INTERVAL_MS);
         }
 
         // Stop timer and flow rate calculation
-        function stopExtraction() { /* ... (same) ... */
+        function stopExtraction() {
              if (!timerInterval && !flowRateInterval) return; console.log("Stopping Extraction Timer & Flow Rate Calc"); if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } if (flowRateInterval) { clearInterval(flowRateInterval); flowRateInterval = null; } currentFlowRateGramsPerSecond = 0.0; lockedWeight = liquidWeight; lockedTime = timerSeconds; setState(State.FINISHED);
         }
 
         // Calculate flow rate based on weight change
-        function calculateFlowRate() { /* ... (same) ... */
+        function calculateFlowRate() {
              const now = Date.now(); const timeDiff = (now - lastWeightTime) / 1000; if (timeDiff >= (FLOW_RATE_INTERVAL_MS / 1000)) { const weightDiff = currentWeight - lastWeightReading; currentFlowRateGramsPerSecond = (timeDiff > 0) ? (weightDiff / timeDiff) : 0; lastWeightReading = currentWeight; lastWeightTime = now; const formattedFlow = formatFlowRate(currentFlowRateGramsPerSecond); flowRateValue.textContent = formattedFlow.value; flowRateUnit.textContent = formattedFlow.unit; if (currentFlowRateGramsPerSecond < FLOW_STOP_THRESHOLD_G_PER_S) { noFlowCounter++; if (noFlowCounter >= NO_FLOW_CHECKS_TO_STOP) { console.log("Flow stop detected."); stopExtraction(); } } else { noFlowCounter = 0; } }
         }
 
-        function resetScale() { /* ... (same) ... */
+        function resetScale() {
              stopExtraction(); timerSeconds = 0; currentWeight = 0.0; cupWeight = 198.0; /* Reset cup weight */ liquidWeight = 0.0; lockedWeight = 0.0; lockedTime = 0; currentUnitIndex = 0; currentFlowRateGramsPerSecond = 0.0; noFlowCounter = 0; setState(State.WAITING_CUP);
         }
 
@@ -429,7 +436,9 @@
 
             // --- Update Prompt, Hint, Buttons ---
             statusPrompt.textContent = promptText;
-            hintBar.textContent = hintText;
+            if (!longPressActive) { // Only update hint bar if long press is not active
+                hintBar.textContent = hintText;
+            }
             btnShortPress.textContent = `${shortPressAction} (短按)`;
             btnShortPress.disabled = !shortPressEnabled;
             btnRotateLeft.disabled = !enableRotation;
@@ -511,10 +520,90 @@
 
 
         // --- Power Off & Long Press Logic ---
-        function simulatePowerOff() { console.log("Simulating Direct Power Off - Black Screen"); disableAllButtons(); const deviceScreen = document.querySelector('.device-screen'); if (deviceScreen) { deviceScreen.innerHTML = ''; deviceScreen.style.backgroundColor = '#000000'; } }
-        function disableAllButtons() { [btnRotateLeft, btnRotateRight, btnShortPress, btnLongPress, btnReturnIndex, btnSimulatePlaceCup, btnSimulateDripStart, btnSimulateDripStop, btnSimulateRemoveCup].forEach(btn => { if(btn) btn.disabled = true; }); }
-        function startLongPress() { if (longPressActive) return; longPressActive = true; longPressStartTime = Date.now(); currentLongPressDuration = 0; if (hintBar) { hintBar.classList.add('long-press-active'); } const updateHint = () => { if (!longPressActive) return; currentLongPressDuration = Date.now() - longPressStartTime; if (currentLongPressDuration < POWER_CONFIRM_DURATION) { const remainingSeconds = Math.ceil((POWER_CONFIRM_DURATION - currentLongPressDuration) / 1000); if (hintBar) { hintBar.innerHTML = `长按返回  | 继续按住<span class="blink-text">${remainingSeconds}s</span>关机`; } } else { if (longPressActive) { simulatePowerOff(); } return; } if (longPressActive) { longPressTimer = requestAnimationFrame(updateHint); } }; longPressTimer = requestAnimationFrame(updateHint); }
-        function cancelLongPress() { if (!longPressActive) return; longPressActive = false; if (longPressTimer) { cancelAnimationFrame(longPressTimer); longPressTimer = null; } if (hintBar) { hintBar.classList.remove('long-press-active'); updateUI(); } if (currentLongPressDuration >= SHOW_OVERLAY_DURATION && currentLongPressDuration < POWER_CONFIRM_DURATION) { console.log("Executing Back Action (Released between 1s-5s)..."); window.location.href = 'main_menu.html'; } else if (currentLongPressDuration < SHOW_OVERLAY_DURATION) { console.log("Long press cancelled (too short)."); } currentLongPressDuration = 0; }
+        function simulateDirectPowerOff() {
+            console.log("Simulating Direct Power Off - Black Screen");
+            disableAllButtons();
+            const deviceScreen = document.querySelector('.device-screen');
+            if (deviceScreen) {
+                deviceScreen.innerHTML = '';
+                deviceScreen.style.backgroundColor = '#000000';
+            }
+            if (longPressActive && longPressTimer) {
+                cancelAnimationFrame(longPressTimer);
+                longPressTimer = null;
+                longPressActive = false;
+            }
+        }
+
+        function disableAllButtons() {
+            [btnRotateLeft, btnRotateRight, btnShortPress, btnLongPress, btnReturnIndex, btnSimulatePlaceCup, btnSimulateDripStart, btnSimulateDripStop, btnSimulateRemoveCup].forEach(btn => {
+                if (btn) btn.disabled = true;
+            });
+        }
+
+        function startLongPress() {
+            if (longPressActive) return;
+            longPressActive = true;
+            longPressStartTime = Date.now();
+            currentLongPressDuration = 0;
+            currentLongPressAction = LONG_PRESS_ACTION_NONE;
+            if (hintBar) {
+                hintBar.classList.add('long-press-active');
+            }
+            updateLongPressHintText();
+            longPressTimer = requestAnimationFrame(updateLongPressHintLoop);
+        }
+
+        function updateLongPressHintLoop() {
+            if (!longPressActive) return;
+            updateLongPressHintText();
+            longPressTimer = requestAnimationFrame(updateLongPressHintLoop);
+        }
+
+        function updateLongPressHintText() {
+            currentLongPressDuration = Date.now() - longPressStartTime;
+            let remainingSecondsForPowerOff;
+
+            if (currentLongPressDuration < LONG_PRESS_POWER_OFF_DURATION) {
+                remainingSecondsForPowerOff = Math.ceil((LONG_PRESS_POWER_OFF_DURATION - currentLongPressDuration) / 1000);
+                if (hintBar) {
+                    hintBar.innerHTML = `长按返回  | 继续按住<span class="blink-text-inline">${remainingSecondsForPowerOff}s</span>关机`;
+                }
+                if (currentLongPressDuration < LONG_PRESS_RETURN_DURATION) { // Use LONG_PRESS_RETURN_DURATION for return threshold
+                    currentLongPressAction = LONG_PRESS_ACTION_NONE;
+                } else {
+                    currentLongPressAction = LONG_PRESS_ACTION_RETURN;
+                }
+            } else {
+                if (longPressActive) {
+                    simulateDirectPowerOff();
+                }
+                return;
+            }
+        }
+
+        function cancelLongPress() {
+            if (!longPressActive) return;
+            longPressActive = false;
+            if (longPressTimer) {
+                cancelAnimationFrame(longPressTimer);
+                longPressTimer = null;
+            }
+
+            if (hintBar) {
+                hintBar.classList.remove('long-press-active');
+            }
+            updateUI(); // Restore hint text
+
+            if (currentLongPressAction === LONG_PRESS_ACTION_RETURN) {
+                console.log("Executing Back Action (松开时触发 <5s)...");
+                window.location.href = 'main_menu.html';
+            } else {
+                console.log("Long press cancelled (不足1秒).");
+            }
+            currentLongPressDuration = 0;
+            currentLongPressAction = LONG_PRESS_ACTION_NONE;
+        }
 
 
         // --- Initialization ---

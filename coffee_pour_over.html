@@ -694,34 +694,25 @@
 
         function cancelLongPress() {
             if (!longPressActive) return;
-            longPressActive = false; if (longPressTimer) { cancelAnimationFrame(longPressTimer); longPressTimer = null; }
+            longPressActive = false;
+            if (longPressTimer) {
+                cancelAnimationFrame(longPressTimer);
+                longPressTimer = null;
+            }
+
             if (hintBar) {
                 hintBar.classList.remove('long-press-active');
-                let hintTextVal = '';
-                switch (currentState) {
-                    case State.INIT: hintTextVal = "旋转切换单位"; break;
-                    case State.WAITING_FILTER: hintTextVal = "等待放置..."; break;
-                    case State.FILTER_PLACED: hintTextVal = "旋转切换单位, 短按TARE去皮"; break;
-                    case State.WAITING_GROUNDS: hintTextVal = "等待加入..."; break;
-                    case State.WEIGHING_GROUNDS: hintTextVal = "旋转切换单位, 短按TARE去皮"; break;
-                    case State.READY_TO_POUR: hintTextVal = "等待注水..."; break;
-                    case State.POURING: hintTextVal = "短按停止计时"; break;
-                    case State.FINISHED: hintTextVal = "短按复位 / 拿走滤杯"; break;
-                    case State.WEIGHING_LIQUID: hintTextVal = "短按 TARE 复位"; break;
-                    case State.WAITING_CARAFE: hintTextVal = "旋转切换单位"; break;
-                    default: hintTextVal = "手冲咖啡模式"; 
-                }
-                hintBar.textContent = hintTextVal;
             }
-            updateUI();
+            updateUI(); // This will restore the correct hint text based on the current state
 
-            if (currentLongPressAction === LONG_PRESS_ACTION_RETURN) { 
+            if (currentLongPressAction === LONG_PRESS_ACTION_RETURN) {
                 console.log("Executing Back Action (松开时触发 <5s)...");
-                window.location.href = 'main_menu.html'; 
-            } else if (currentLongPressAction === LONG_PRESS_ACTION_NONE) { 
+                window.location.href = 'main_menu.html';
+            } else {
                 console.log("Long press cancelled (不足1秒).");
             }
-            currentLongPressDuration = 0; currentLongPressAction = LONG_PRESS_ACTION_NONE;
+            currentLongPressDuration = 0;
+            currentLongPressAction = LONG_PRESS_ACTION_NONE;
         }
         // --- End New Long Press Logic ---
 

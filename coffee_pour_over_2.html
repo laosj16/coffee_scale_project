@@ -654,17 +654,26 @@
         function updateLongPressHintLoop() { if (!longPressActive) return; updateLongPressHintText(); longPressTimer = requestAnimationFrame(updateLongPressHintLoop); }
         function updateLongPressHintText() { currentLongPressDuration = Date.now() - longPressStartTime; let remainingSecondsForPowerOff; if (currentLongPressDuration < LONG_PRESS_POWER_OFF_DURATION) { remainingSecondsForPowerOff = Math.ceil((LONG_PRESS_POWER_OFF_DURATION - currentLongPressDuration) / 1000); if (hintBar) { hintBar.innerHTML = `长按返回  | 继续按住<span class="blink-text-inline">${remainingSecondsForPowerOff}s</span>关机`; } currentLongPressAction = (currentLongPressDuration < LONG_PRESS_RETURN_DURATION) ? LONG_PRESS_ACTION_NONE : LONG_PRESS_ACTION_RETURN; } else { if (longPressActive) { simulateDirectPowerOff(); } return; } }
         function cancelLongPress() {
-            if (!longPressActive) return; longPressActive = false; if (longPressTimer) { cancelAnimationFrame(longPressTimer); longPressTimer = null; }
+            if (!longPressActive) return;
+            longPressActive = false;
+            if (longPressTimer) {
+                cancelAnimationFrame(longPressTimer);
+                longPressTimer = null;
+            }
+
             if (hintBar) {
                 hintBar.classList.remove('long-press-active');
-                // updateUI will set the correct hint text based on current state
             }
-            // updateUI will also restore statusPrompt
-            updateUI(); // Call updateUI to restore normal hint and status texts
+            updateUI(); // This will restore the correct hint text based on the current state
 
-            if (currentLongPressAction === LONG_PRESS_ACTION_RETURN) { console.log("Executing Back Action..."); window.location.href = 'main_menu.html'; } 
-            else if (currentLongPressAction === LONG_PRESS_ACTION_NONE) { console.log("Long press cancelled (不足1秒)."); }
-            currentLongPressDuration = 0; currentLongPressAction = LONG_PRESS_ACTION_NONE;
+            if (currentLongPressAction === LONG_PRESS_ACTION_RETURN) {
+                console.log("Executing Back Action (松开时触发 <5s)...");
+                window.location.href = 'main_menu.html';
+            } else {
+                console.log("Long press cancelled (不足1秒).");
+            }
+            currentLongPressDuration = 0;
+            currentLongPressAction = LONG_PRESS_ACTION_NONE;
         }
         // --- End New Long Press Logic ---
 

@@ -324,6 +324,7 @@
                 });
                 
                 updatePageIndicator();
+                updateUI(); // Call updateUI to update hint text based on selection
             }
 
             function updatePageIndicator() {
@@ -349,8 +350,7 @@
                 const itemsOnCurrentPage = endIndex - startIndex;
                 
                 // 计算当前页面内的相对索引
-                const currentPageIndex = selectedIndex - startIndex;
-                let newPageIndex = currentPageIndex + direction;
+                let newPageIndex = selectedIndex - startIndex + direction;
                 
                 // 如果超出当前页面范围，则换页
                 if (newPageIndex < 0) {
@@ -413,6 +413,34 @@
                          }, 100);
                      }
                  }
+                 updateUI(); // Update UI after short press action
+            }
+
+            function updateUI() {
+                if (!hintBar || !statusPrompt) return;
+
+                let hintTextVal = "旋转选择 | 短按确认";
+                let statusText = "设置";
+
+                const selectedItemElement = settingsItems[selectedIndex];
+                if (selectedItemElement) {
+                    if (selectedItemElement.id === 'brightness-control-item') {
+                        hintTextVal = "旋转调整亮度 | 短按确认";
+                    } else if (selectedItemElement.id === 'sound-control-item') {
+                        hintTextVal = "旋转切换声音 | 短按确认";
+                    } else if (selectedItemElement.getAttribute('data-target') === 'settings_language.html') {
+                        hintTextVal = "短按进入语言设置";
+                    } else if (selectedItemElement.getAttribute('data-target') === 'settings_factory_reset.html') {
+                        hintTextVal = "短按进入恢复出厂设置";
+                    } else if (selectedItemElement.getAttribute('data-target') === 'settings_about.html') {
+                        hintTextVal = "短按进入关于设备";
+                    }
+                }
+                
+                if (!longPressActive) { // Only update hint bar if long press is not active
+                    hintBar.textContent = hintTextVal;
+                }
+                statusPrompt.textContent = statusText;
             }
 
             // --- Power Off & Long Press Logic ---
@@ -477,8 +505,9 @@
                 }
                 if (hintBar) {
                     hintBar.classList.remove('long-press-active');
-                    hintBar.textContent = "旋转选择 | 短按确认";
                 }
+                updateUI(); // Call updateUI to restore the correct hint text
+
                 if (currentLongPressAction === LONG_PRESS_ACTION_RETURN) {
                     window.location.href = 'main_menu.html';
                 }
@@ -507,8 +536,9 @@
             updateSoundToggleVisual();
             updateLanguageVisual();
             updatePageIndicator();
-            if(statusPrompt) statusPrompt.textContent = "设置";
-            if(hintBar) hintBar.textContent = "旋转选择 | 短按确认";
+            updateUI(); // Initial UI update
+            // if(statusPrompt) statusPrompt.textContent = "设置"; // Handled by updateUI
+            // if(hintBar) hintBar.textContent = "旋转选择 | 短按确认"; // Handled by updateUI
 
             // 显示当前语言
             const savedLanguage = localStorage.getItem('selectedLanguage') || 'zh-CN';
