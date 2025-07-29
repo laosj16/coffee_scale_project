@@ -23,6 +23,7 @@
         
         /* 不同菜单项的颜色 */
         .menu-item[data-target="general_weighing.html"] { background-color: #34C759; } /* 绿色 - 通用称重 */
+        .menu-item[data-target="timed_weighing.html"] { background-color: #32ADEA; } /* 蓝绿色 - 计时称重 */
         .menu-item[data-target="coffee_espresso.html"] { background-color: #FF9500; } /* 橙色 - 意式模式 */
         .menu-item[data-target="coffee_pour_over.html"] { background-color: #007AFF; } /* 蓝色 - 手冲模式 1 */
         .menu-item[data-target="coffee_pour_over_2.html"] { background-color: #5856D6; } /* 紫色 - 手冲模式 2 */
@@ -79,6 +80,7 @@
 
                 <!-- Original menu items in desired order -->
                 <div class="menu-item original" data-target="general_weighing.html"><i class="fa-solid fa-weight-scale"></i><span>通用称重</span></div>
+                <div class="menu-item original" data-target="timed_weighing.html"><i class="fa-solid fa-stopwatch"></i><span>计时称重</span></div>
                 <div class="menu-item original" data-target="coffee_espresso.html"><i class="fa-solid fa-bolt"></i><span>意式模式</span></div>
                 <div class="menu-item original" data-target="coffee_pour_over.html"><i class="fa-solid fa-mug-hot"></i><span>手冲模式 1</span></div>
                 <div class="menu-item original" data-target="coffee_pour_over_2.html"><i class="fa-solid fa-droplet"></i><span>手冲模式 2</span></div>
@@ -86,7 +88,7 @@
 
                 <!-- Clones for seamless looping -->
                 <div class="menu-item clone" data-target="general_weighing.html"><i class="fa-solid fa-weight-scale"></i><span>通用称重</span></div>
-                <div class="menu-item clone" data-target="coffee_espresso.html"><i class="fa-solid fa-bolt"></i><span>意式模式</span></div>
+                <div class="menu-item clone" data-target="timed_weighing.html"><i class="fa-solid fa-stopwatch"></i><span>计时称重</span></div>
             </div>
         </div>
         <div class="page-indicator-container">
@@ -123,6 +125,7 @@
         // Menu items titles
         const menuTitles = [
             "通用称重",
+            "倒计时",
             "意式模式", 
             "手冲模式 1",
             "手冲模式 2",
@@ -143,8 +146,8 @@
 
         // --- State Variables ---
         const CLONES_COUNT = 2;
-        const ORIGINAL_ITEMS_COUNT = 5;
-        let currentLogicalIndex = 2; // 默认选中“手冲模式 1” (索引为2)
+        const ORIGINAL_ITEMS_COUNT = 6;
+        let currentLogicalIndex = 3; // 默认选中“手冲模式 1” (索引为3)
         let currentDisplayIndex = CLONES_COUNT + currentLogicalIndex;
         let isTransitioning = false;
         let transitionTimeout = null;
